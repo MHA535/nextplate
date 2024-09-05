@@ -1,98 +1,130 @@
-import Breadcrumbs from "@/components/Breadcrumbs";
-import config from "@/config/config.json";
-import { getListPage } from "@/lib/contentParser";
-import {
-  getActiveLanguages,
-  getLanguageObj,
-  getTranslations,
-} from "@/lib/languageParser";
-import PageHeader from "@/partials/PageHeader";
-import SeoMeta from "@/partials/SeoMeta";
-import { RegularPage } from "@/types";
-import path from "path";
 
-const Contact = async ({ params }: { params: { lang: string } }) => {
-  const language = getLanguageObj(params.lang);
-  const data: RegularPage = getListPage(
-    path.join(language.contentDir, "contact/_index.md"),
-  );
-  const content = await getTranslations(params.lang);
-  const { frontmatter } = data;
-  const { title, description, meta_title, image } = frontmatter;
-  const { contact_form_action } = config.params;
+"use client"; // Add this line to make it a Client Component
+import { useState } from "react";
+
+const Contact = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    details: ''
+  });
+
+  const [message, setMessage] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setMessage('Form submitted successfully!');
+        setFormData({ firstName: '', lastName: '', email: '', phone: '', details: '' });
+      } else {
+        const data = await response.json();
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setMessage('An error occurred. Please try again.');
+    }
+  };
 
   return (
-    <>
-      <SeoMeta
-        title={title}
-        meta_title={meta_title}
-        description={description}
-        image={image}
-      />
-      <PageHeader title={title}>
-        <Breadcrumbs lang={params.lang} />
-      </PageHeader>
-      <section className="section-sm">
-        <div className="container">
-          <div className="row">
-            <div className="mx-auto md:col-10 lg:col-6">
-              <form action={contact_form_action} method="POST">
-                <div className="mb-6">
-                  <label htmlFor="name" className="form-label">
-                    {content.full_name} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    className="form-input"
-                    placeholder={content.full_name_placeholder}
-                    type="text"
-                  />
+    <section className="section-sm">
+      <div className="container">
+        <div className="row">
+          <div className="mx-auto md:col-10 lg:col-6">
+            <form onSubmit={handleSubmit} className="w-full" id="contact-form">
+              <div className="grid gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="mb-6">
+                    <label htmlFor="firstName" className="form-label">First Name</label>
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      className="form-input"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label htmlFor="lastName" className="form-label">Last Name</label>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      className="form-input"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                 </div>
+
                 <div className="mb-6">
-                  <label htmlFor="email" className="form-label">
-                    {content.mail} <span className="text-red-500">*</span>
-                  </label>
+                  <label htmlFor="email" className="form-label">Email</label>
                   <input
                     id="email"
                     name="email"
                     className="form-input"
-                    placeholder={content.mail.placeholder}
                     type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
+
                 <div className="mb-6">
-                  <label htmlFor="message" className="form-label">
-                    {content.message} <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
+                  <label htmlFor="phone" className="form-label">Phone</label>
+                  <input
+                    id="phone"
+                    name="phone"
                     className="form-input"
-                    placeholder={content.message_placeholder}
-                    rows={8}
-                  ></textarea>
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
                 </div>
+
+                <div className="mb-6">
+                  <label htmlFor="details" className="form-label">Details</label>
+                  <textarea
+                    id="details"
+                    name="details"
+                    className="form-input"
+                    rows={4}
+                    value={formData.details}
+                    onChange={handleChange}
+                  />
+                </div>
+
                 <button type="submit" className="btn btn-primary">
-                  {content.submit}
+                  Submit
                 </button>
-              </form>
-            </div>
+
+                {message && <p className="mt-4 text-red-500">{message}</p>}
+              </div>
+            </form>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 
 export default Contact;
-
-// remove dynamicParams
-export const dynamicParams = false;
-
-// generate static params
-export async function generateStaticParams() {
-  return getActiveLanguages().map((language) => ({
-    lang: language.languageCode,
-  }));
-}

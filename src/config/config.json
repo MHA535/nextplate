@@ -1,7 +1,7 @@
 {
   "site": {
-    "title": "Nextplate",
-    "base_url": "https://nextplate.netlify.app",
+    "title": "Brand North",
+    "base_url": "brand.com",
     "base_path": "/",
     "trailing_slash": false,
     "favicon": "/images/favicon.png",
@@ -9,7 +9,7 @@
     "logo_darkmode": "/images/logo-darkmode.png",
     "logo_width": "150",
     "logo_height": "27",
-    "logo_text": "Nextplate"
+    "logo_text": "Brand North"
   },
 
   "settings": {
@@ -19,7 +19,7 @@
     "default_theme": "light",
     "pagination": 2,
     "summary_length": 200,
-    "blog_folder": "blog",
+    "blog_folder": "blog", 
     "default_language": "en",
     "disable_languages": [],
     "default_language_in_subdir": false
@@ -27,13 +27,13 @@
 
   "params": {
     "contact_form_action": "#",
-    "copyright": "Designed And Developed by [Zeon Studio](https://zeon.studio)"
+    "copyright": "Designed And Developed by BN"
   },
 
   "navigation_button": {
     "enable": true,
     "label": "Get Started",
-    "link": "https://github.com/zeon-studio/nextplate"
+    "link": "/contact"
   },
 
   "disqus": {
